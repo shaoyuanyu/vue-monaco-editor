@@ -1,47 +1,39 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import * as monaco from 'monaco-editor'
+
+const props = defineProps({
+  value: {
+    type: String,
+    default: ''
+  },
+  language: {
+    type: String,
+    default: 'javascript'
+  }
+})
+
+const editor = ref<HTMLInputElement | null>(null)
+const monacoEditor = ref<monaco.editor.IStandaloneCodeEditor | null>(null)
+
+onMounted(() => {
+  monacoEditor.value = monaco.editor.create(editor.value!, {
+    value: '#include <stdio.h>',
+    language: 'c',
+    fontSize: 16
+  })
+
+  monaco.editor.setTheme('vs-dark')
+})
+
+onBeforeUnmount(() => {
+  monacoEditor.value!.dispose()
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div ref="editor" style="width: 100%; height: 100vh"></div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
 </style>
