@@ -10,10 +10,10 @@ import JSONWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import CSSWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import HTMLWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import TSWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { StorageName, initialEditorValue, useDarkGlobal } from '@/utils'
+import { StorageName, initialEditorValue, useDarkGlobal } from './utils'
 
 const props = defineProps<{
-  activeTab: string
+  language: string
 }>()
 
 const emit = defineEmits<(e: 'change', payload: typeof editorValue.value) => void>()
@@ -38,14 +38,16 @@ let editor: monaco.editor.IStandaloneCodeEditor
 
 const isDark = useDarkGlobal()
 
-const { activeTab } = toRefs(props)
+const { language } = toRefs(props)
 
 const editorState = useStorage<Record<string, any>>(StorageName.EDITOR_STATE, {})
 const editorValue = useStorage<Record<string, any>>(StorageName.EDITOR_VALUE, initialEditorValue)
 
 onMounted(() => {
+  console.log(props.language)
+
   editor = monaco.editor.create(container.value!, {
-    language: activeTab.value,
+    language: language.value,
     theme: isDark.value ? 'vs-dark' : 'vs'
   })
 
@@ -53,21 +55,21 @@ onMounted(() => {
 
   editor.onDidChangeModelContent(
     useDebounceFn(() => {
-      if (editorValue.value[activeTab.value] !== editor.getValue()!) {
-        editorValue.value[activeTab.value] = editor.getValue()!
+      if (editorValue.value[language.value] !== editor.getValue()!) {
+        editorValue.value[language.value] = editor.getValue()!
         emit('change', editorValue.value)
       }
     }, 500)
   )
 
   // Set values from storage on load
-  if (editorValue.value[activeTab.value]) {
-    editor.setValue(editorValue.value[activeTab.value])
-    editor.restoreViewState(editorState.value[activeTab.value])
+  if (editorValue.value[language.value]) {
+    editor.setValue(editorValue.value[language.value])
+    editor.restoreViewState(editorState.value[language.value])
   }
 })
 
-watch(activeTab, (currentTab, prevTab) => {
+watch(language, (currentTab, prevTab) => {
   monaco.editor.setModelLanguage(editor.getModel()!, currentTab)
 
   editorState.value[prevTab] = editor.saveViewState()
