@@ -1,43 +1,22 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-import * as monaco from 'monaco-editor'
+import Editor from '@/components/Editor.vue'
+import { useStorage } from '@vueuse/core'
+import { StorageName } from '@/utils'
+import { ref } from 'vue'
 
-const editorContent = "#include <stdio.h>"
-const language = "c"
-const editorFontSize = 16
-const editorTheme = ""
+const items = ref([
+  { text: 'HTML', value: 'html' },
+  { text: 'CSS', value: 'css' },
+  { text: 'JS', value: 'javascript' }
+])
 
-const editor = ref<HTMLInputElement | null>(null)
-const monacoEditor = ref<monaco.editor.IStandaloneCodeEditor | null>(null)
-
-onMounted(() => {
-  monacoEditor.value = monaco.editor.create(editor.value!, {
-    value: editorContent,
-    language: language,
-    fontSize: editorFontSize,
-  })
-
-  /*
-  monaco.editor.defineTheme("test-theme", {
-    base: "vs",
-    colors: {},
-    inherit: true,
-    rules: [{
-      token: ""
-    }],
-  })
-  */
-
-  monaco.editor.setTheme("test-theme")
-})
-
-onBeforeUnmount(() => {
-  monacoEditor.value!.dispose()
-})
+const currentTab = useStorage(StorageName.ACTIVE_TAB, items.value[0].value)
 </script>
 
 <template>
-  <div ref="editor" style="width: 100%; height: 100vh"></div>
+  <div style="width: 80%; height: 100vh; padding: 20px 20px; background-color: antiquewhite">
+    <Editor :active-tab="currentTab" />
+  </div>
 </template>
 
 <style scoped></style>
